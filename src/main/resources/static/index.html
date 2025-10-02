@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Instagram Clone - Post</title>
+</head>
+<body>
+<h1>새 게시물 작성</h1>
+<textarea id="post-content" rows="4" cols="50" placeholder="내용을 입력하세요..."></textarea>
+<br>
+<button id="submit-btn">등록하기</button>
+
+<script>
+    // '등록하기' 버튼을 눌렀을 때 실행될 함수
+    document.getElementById('submit-btn').addEventListener('click', function() {
+        // textarea에 입력된 값을 가져옴
+        const contentValue = document.getElementById('post-content').value;
+
+        // fetch 함수를 사용해 백엔드 API에 POST 요청을 보냄
+        fetch('/api/posts', {
+            method: 'POST', // 요청 방식
+            headers: {
+                'Content-Type': 'application/json', // 우리는 JSON 형태로 보낼 것임
+            },
+            // 실제 보낼 데이터 (JavaScript 객체를 JSON 문자열로 변환)
+            body: JSON.stringify({ content: contentValue }),
+        })
+        .then(response => response.text()) // 응답을 텍스트로 변환
+        .then(data => {
+            alert(data); // "게시물 작성이 완료되었습니다." 알림창 띄우기
+            window.location.reload(); // 페이지 새로고침
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('게시물 작성에 실패했습니다.');
+        });
+    });
+</script>
+</body>
+</html>
