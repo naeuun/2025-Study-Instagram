@@ -1,4 +1,7 @@
 package com.back2.Instagram.domain;
 
-public class Role {
+// 권한
+public enum Role {
+    USER, // UserService
+    ADMIN
 }

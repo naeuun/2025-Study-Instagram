@@ -1,3 +1,12 @@
+# 운영용으로 환경 변수 사용하여 DB 연결
 spring:
-  profiles:
-    active: prod
+  datasource:
+    url: jdbc:mysql://instagram-mysql:3306/instagram_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=utf8
+    username: back2
+    password: instagram_pw
+  jpa:
+    hibernate.ddl-auto: validate
+    properties.hibernate.jdbc.time_zone: UTC
+    # Hibernate가 DB와 주고받는 시간대(TimeZone)를 강제로 지정
+    # 한국 시간(Asia/Seoul)을 그대로 DB에 넣으면, 서버/DB/애플리케이션 시간대가 다르면 시간이 꼬이는 문제가 생김
+    # => 운영(prod)에서는 UTC 권장

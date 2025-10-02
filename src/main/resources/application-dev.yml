@@ -1,3 +1,15 @@
+# 개발용 로컬 MySQL DB와 연결-localhost 사용
 spring:
-  profiles:
-    active: dev # OR prod
+  datasource:
+    # Docker 네트워크 내에서 사용할 컨테이너로 지정
+    url: jdbc:mysql://localhost:3306/instagram_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=utf8
+    username: back2
+    password: instagram_pw
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
+    properties.hibernate.format_sql: true # SQL을 예쁘게 줄바꿈해서 보여줌
+server.port: 8080
+
+jwt: # 임시 jwt 키 -> 나중에 aws parameter store로?
+  secret: c3ByaW5nLWJvb3Qtand0LXNlY3JldC1rZXktZm9yLWluc3RhZ3JhbS1jbG9uZS10ZXN0
