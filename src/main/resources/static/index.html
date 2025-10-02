@@ -2,39 +2,193 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Instagram Clone - Post</title>
+    <title>Instagram API 테스트</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .container { border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        input, textarea { width: calc(100% - 10px); padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 10px 15px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #jwt-token-display { background-color: #f0f0f0; padding: 10px; border-radius: 4px; word-wrap: break-word; margin-top: 10px; }
+        .hidden { display: none; }
+        #posts-list div.post-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        #posts-list div.post-item:last-child { border-bottom: none; }
+    </style>
 </head>
 <body>
-<h1>새 게시물 작성</h1>
-<textarea id="post-content" rows="4" cols="50" placeholder="내용을 입력하세요..."></textarea>
-<br>
-<button id="submit-btn">등록하기</button>
+
+<h1>Instagram 백엔드 API 테스트 페이지</h1>
+
+<!-- 1. 회원가입 -->
+<div class="container">
+    <h2>1. 회원가입</h2>
+    <input type="text" id="signup-username" placeholder="사용자 이름">
+    <input type="password" id="signup-password" placeholder="비밀번호">
+    <input type="email" id="signup-email" placeholder="이메일">
+    <button onclick="signup()">회원가입 요청</button>
+</div>
+
+<!-- 2. 로그인 -->
+<div class="container">
+    <h2>2. 로그인</h2>
+    <input type="text" id="login-username" placeholder="사용자 이름">
+    <input type="password" id="login-password" placeholder="비밀번호">
+    <button onclick="login()">로그인 요청</button>
+    <div id="token-section" class="hidden">
+        <h3>발급된 JWT 토큰:</h3>
+        <div id="jwt-token-display"></div>
+    </div>
+</div>
+
+<!-- 3. 게시물 작성 -->
+<div class="container">
+    <h2>3. 게시물 작성 (로그인 후 테스트)</h2>
+    <textarea id="post-content" rows="4" placeholder="게시물 내용을 입력하세요..."></textarea>
+    <button onclick="createPost()">게시물 작성 요청</button>
+</div>
+
+<!-- 4. 전체 게시물 조회 -->
+<div class="container">
+    <h2>4. 전체 게시물 조회 (로그인 후 테스트)</h2>
+    <button onclick="getAllPosts()">게시물 불러오기</button>
+    <div id="posts-list"></div>
+</div>
 
 <script>
-    // '등록하기' 버튼을 눌렀을 때 실행될 함수
-    document.getElementById('submit-btn').addEventListener('click', function() {
-        // textarea에 입력된 값을 가져옴
-        const contentValue = document.getElementById('post-content').value;
+    let jwtToken = ''; // 로그인 성공 시 토큰을 저장할 변수
 
-        // fetch 함수를 사용해 백엔드 API에 POST 요청을 보냄
-        fetch('/api/posts', {
-            method: 'POST', // 요청 방식
-            headers: {
-                'Content-Type': 'application/json', // 우리는 JSON 형태로 보낼 것임
-            },
-            // 실제 보낼 데이터 (JavaScript 객체를 JSON 문자열로 변환)
-            body: JSON.stringify({ content: contentValue }),
-        })
-        .then(response => response.text()) // 응답을 텍스트로 변환
-        .then(data => {
-            alert(data); // "게시물 작성이 완료되었습니다." 알림창 띄우기
-            window.location.reload(); // 페이지 새로고침
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('게시물 작성에 실패했습니다.');
-        });
-    });
+    // 1. 회원가입 함수
+    async function signup() {
+        const username = document.getElementById('signup-username').value;
+        const password = document.getElementById('signup-password').value;
+        const email = document.getElementById('signup-email').value;
+
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || '회원가입에 실패했습니다.');
+            }
+
+            alert('회원가입 성공!');
+            document.getElementById('login-username').value = username;
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    // 2. 로그인 함수
+    async function login() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) {
+                 throw new Error('로그인에 실패했습니다. 아이디 또는 비밀번호를 확인하세요.');
+            }
+
+            const token = await response.text();
+            jwtToken = token;
+
+            document.getElementById('jwt-token-display').textContent = jwtToken;
+            document.getElementById('token-section').classList.remove('hidden');
+            alert('로그인 성공! JWT 토큰이 발급되었습니다.');
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    // 3. 게시물 작성 함수
+    async function createPost() {
+        if (!jwtToken) {
+            alert('먼저 로그인을 해주세요!');
+            return;
+        }
+
+        const content = document.getElementById('post-content').value;
+
+        try {
+            const response = await fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + jwtToken
+                },
+                body: JSON.stringify({ content })
+            });
+
+            const resultMessage = await response.text();
+
+            if (!response.ok) {
+                throw new Error(resultMessage || '게시물 작성에 실패했습니다.');
+            }
+
+            alert('서버 응답: ' + resultMessage);
+            document.getElementById('post-content').value = '';
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    // 4. 게시물 조회 함수
+    async function getAllPosts() {
+        if (!jwtToken) {
+            alert('먼저 로그인을 해주세요!');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/posts', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + jwtToken // 헤더에 토큰 추가
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('게시물 조회에 실패했습니다.');
+            }
+
+            const posts = await response.json();
+            const postsListDiv = document.getElementById('posts-list');
+            postsListDiv.innerHTML = ''; // 기존 목록 초기화
+
+            if (posts.length === 0) {
+                postsListDiv.innerHTML = '<p>작성된 게시물이 없습니다.</p>';
+                return;
+            }
+
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post-item';
+                postDiv.innerHTML = `
+                    <p><strong>작성자:</strong> ${post.username}</p>
+                    <p>${post.content}</p>
+                    <small>작성일: ${new Date(post.createdAt).toLocaleString()}</small>
+                `;
+                postsListDiv.appendChild(postDiv);
+            });
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
 </script>
+
 </body>
 </html>
+

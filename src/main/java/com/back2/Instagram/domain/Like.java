@@ -1,5 +1,6 @@
 package com.back2.Instagram.domain;
 
+import com.back2.Instagram.entity.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
