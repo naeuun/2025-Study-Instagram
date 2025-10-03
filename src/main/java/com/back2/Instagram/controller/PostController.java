@@ -5,6 +5,7 @@ import com.back2.Instagram.dto.PostRequestDto;
 import com.back2.Instagram.dto.PostResponseDto;
 import com.back2.Instagram.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +32,17 @@ public class PostController {
         return postService.getAllPosts();
     }
 
+    // 게시물 수정 API
+    @PutMapping("/posts/{postId}")
+    public PostResponseDto updatePost(@PathVariable Long postId, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal User user) {
+        return postService.updatePost(postId, requestDto, user);
+    }
+
+    // 게시물 삭제 API
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<String> deletePost(@PathVariable Long postId, @AuthenticationPrincipal User user) {
+        postService.deletePost(postId, user);
+        return ResponseEntity.ok("게시물이 삭제되었습니다.");
+    }
 
 }

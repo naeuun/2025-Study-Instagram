@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Post extends Timestamped { // Timestamped 클래스를 상속받도록 수정
+public class Post extends Timestamped {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +25,10 @@ public class Post extends Timestamped { // Timestamped 클래스를 상속받도
         this.content = content;
         this.user = user;
     }
+
+    // 게시물 내용 수정을 위한 메소드
+    public void update(String newContent) {
+        this.content = newContent;
+    }
 }
+
