@@ -1,6 +1,6 @@
 package com.back2.Instagram.repository;
 
-import com.back2.Instagram.domain.Like;
+import com.back2.Instagram.entity.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

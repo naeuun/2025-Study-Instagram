@@ -1,2 +1,3 @@
-spring.application.name=Instagram
-spring.profiles.active=dev # 또는 prod
+spring:
+  profiles:
+    active: dev

@@ -1,12 +1,12 @@
 package com.back2.Instagram.service;
 
-import com.back2.Instagram.domain.Role;
-import com.back2.Instagram.domain.User;
+import com.back2.Instagram.entity.Role;
+import com.back2.Instagram.entity.User;
 import com.back2.Instagram.dto.LoginRequest;
 import com.back2.Instagram.dto.SignupRequest;
 import com.back2.Instagram.jwt.JwtTokenProvider;
 import com.back2.Instagram.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,12 +15,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    // 순환 참조 문제를 해결하기 위해 @RequiredArgsConstructor를 지우고 직접 생성자를 만듭니다.
+    // PasswordEncoder 앞에 @Lazy를 붙여서 실제 사용될 때 주입되도록 합니다.
+    public UserService(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     // Spring Security 인증
     @Override
@@ -61,3 +68,4 @@ public class UserService implements UserDetailsService {
         return jwtTokenProvider.generateToken(user.getUsername());
     }
 }
+
