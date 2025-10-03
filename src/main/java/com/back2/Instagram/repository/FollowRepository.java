@@ -1,6 +1,6 @@
 package com.back2.Instagram.repository;
 
-import com.back2.Instagram.domain.Follow;
+import com.back2.Instagram.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

@@ -1,6 +1,6 @@
 package com.back2.Instagram.service;
 
-import com.back2.Instagram.domain.User;
+import com.back2.Instagram.entity.User;
 import com.back2.Instagram.dto.PostRequestDto;
 import com.back2.Instagram.dto.PostResponseDto;
 import com.back2.Instagram.entity.Post;

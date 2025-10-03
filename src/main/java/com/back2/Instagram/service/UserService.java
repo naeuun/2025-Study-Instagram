@@ -1,7 +1,7 @@
 package com.back2.Instagram.service;
 
-import com.back2.Instagram.domain.Role;
-import com.back2.Instagram.domain.User;
+import com.back2.Instagram.entity.Role;
+import com.back2.Instagram.entity.User;
 import com.back2.Instagram.dto.LoginRequest;
 import com.back2.Instagram.dto.SignupRequest;
 import com.back2.Instagram.jwt.JwtTokenProvider;
