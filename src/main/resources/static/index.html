@@ -133,7 +133,8 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + jwtToken
                 },
-                body: JSON.stringify({ caption: content, imageUrl: 'default-url' })
+                // error: 필드명 불일치
+                body: JSON.stringify({ content: content, imageUrl: 'default-url' })
             });
 
             const resultMessage = await response.text();
