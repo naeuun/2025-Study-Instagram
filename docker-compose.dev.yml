@@ -1,0 +1,20 @@
+# Docker Compose를 사용하여 여러 MySQL 컨테이너를 설정
+services:
+  instagram-mysql:     # 팀/프로젝트 이름을 접두사로 붙여 팀원이 여러 도커 띄워도 충돌이 안 나도록!
+    image: mysql:8.0.43
+    container_name: instagram-mysql-dev  # 프로젝트-서비스-환경 -> 협업 시 직관적임
+    environment:
+      MYSQL_ROOT_PASSWORD: instagram_root
+      MYSQL_DATABASE: instagram_db
+      MYSQL_USER: back2 # 임시-백 2팀
+      MYSQL_PASSWORD: instagram_pw # 임시
+      TZ: Asia/Seoul
+    command: [
+      "--default-authentication-plugin=caching_sha2_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+    ports:
+      - "3307:3306" # 포트 충돌로 변경
+    volumes:
+      - ./_vol/mysql:/var/lib/mysql
