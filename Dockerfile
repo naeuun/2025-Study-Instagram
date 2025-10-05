@@ -14,7 +14,7 @@ COPY . .
 RUN ./gradlew clean bootJar --no-daemon
 
 # ===== 2) RUNTIME STAGE =====
-FROM eclipse-temurin:21jre
+FROM eclipse-temurin:21-jre
 ENV TZ=Asia/Seoul \
     JAVA_OPTS="-XX:+UseG1GC -XX:MaxRAMPercentage=75 -Duser.timezone=Asia/Seoul"
 WORKDIR /opt/app
