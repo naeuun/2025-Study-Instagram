@@ -1,0 +1,10 @@
+.gradle
+build
+.git
+.gitignore
+.DS_Store
+node_modules
+
+#추가
+# .dockerignore
+_vol/
