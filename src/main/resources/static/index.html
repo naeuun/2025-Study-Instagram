@@ -63,6 +63,19 @@
             background-color: #c82333;
         }
 
+        .like-btn {
+            padding: 5px 10px;
+            background-color: #ff69b4;
+        }
+
+        .liked {
+            background-color: #ff1493;
+        }
+
+        .like-btn:hover {
+            background-color: #e35a9e;
+        }
+
         #jwt-token-display {
             background-color: #f0f0f0;
             padding: 10px;
@@ -90,7 +103,6 @@
 
 <h1>Instagram 백엔드 API 테스트 페이지</h1>
 
-<!-- 1. 회원가입 -->
 <div class="container">
     <h2>1. 회원가입</h2>
     <input type="text" id="signup-username" placeholder="사용자 이름">
@@ -99,7 +111,6 @@
     <button onclick="signup()">회원가입 요청</button>
 </div>
 
-<!-- 2. 로그인 -->
 <div class="container">
     <h2>2. 로그인</h2>
     <input type="text" id="login-username" placeholder="사용자 이름">
@@ -111,14 +122,12 @@
     </div>
 </div>
 
-<!-- 3. 게시물 작성 -->
 <div class="container">
     <h2>3. 게시물 작성 (로그인 후 테스트)</h2>
     <textarea id="post-content" rows="4" placeholder="게시물 내용을 입력하세요..."></textarea>
     <button onclick="createPost()">게시물 작성 요청</button>
 </div>
 
-<!-- 4. 전체 게시물 조회 -->
 <div class="container">
     <h2>4. 전체 게시물 조회 (로그인 후 테스트)</h2>
     <button onclick="getAllPosts()">게시물 불러오기</button>
@@ -126,9 +135,8 @@
 </div>
 
 <script>
-    let jwtToken = ''; // 로그인 성공 시 토큰을 저장할 변수
+    let jwtToken = '';
 
-    // 1. 회원가입 함수
     async function signup() {
         const username = document.getElementById('signup-username').value;
         const password = document.getElementById('signup-password').value;
@@ -142,8 +150,13 @@
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || '회원가입에 실패했습니다.');
+                const errorData = await response.text();
+                try {
+                    const jsonError = JSON.parse(errorData);
+                    throw new Error(jsonError.message || '회원가입에 실패했습니다.');
+                } catch (e) {
+                    throw new Error(errorData || '회원가입에 실패했습니다.');
+                }
             }
 
             alert('회원가입 성공!');
@@ -153,7 +166,6 @@
         }
     }
 
-    // 2. 로그인 함수
     async function login() {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
@@ -166,7 +178,8 @@
             });
 
             if (!response.ok) {
-                throw new Error('로그인에 실패했습니다. 아이디 또는 비밀번호를 확인하세요.');
+                const errorData = await response.text();
+                throw new Error(errorData || '로그인에 실패했습니다. 아이디 또는 비밀번호를 확인하세요.');
             }
 
             const token = await response.text();
@@ -181,7 +194,6 @@
         }
     }
 
-    // 3. 게시물 작성 함수
     async function createPost() {
         if (!jwtToken) {
             alert('먼저 로그인을 해주세요!');
@@ -208,14 +220,13 @@
 
             alert('서버 응답: ' + resultMessage);
             document.getElementById('post-content').value = '';
-            getAllPosts(); // 작성 후 목록 새로고침
+            getAllPosts();
 
         } catch (error) {
             alert(error.message);
         }
     }
 
-    // 4. 게시물 조회 함수 (수정/삭제 버튼 추가)
     async function getAllPosts() {
         if (!jwtToken) {
             alert('먼저 로그인을 해주세요!');
@@ -240,12 +251,19 @@
             }
 
             posts.forEach(post => {
+                const isLiked = post.isLikedByUser || false;
+
+                const likeBtnClass = isLiked ? 'like-btn liked' : 'like-btn';
+                const likeBtnText = isLiked ? '❤️ 좋아요 취소' : '🤍 좋아요';
+
                 const postDiv = document.createElement('div');
                 postDiv.className = 'post-item';
                 postDiv.innerHTML = `
                     <p><strong>작성자:</strong> ${post.username}</p>
                     <p>${post.content}</p>
                     <small>작성일: ${new Date(post.createdAt).toLocaleString()}</small>
+                    <br><br>
+                    <button class="${likeBtnClass}" onclick="toggleLike(${post.id})">${likeBtnText}</button>
                     <br><br>
                     <button class="update-btn" onclick="updatePost(${post.id})">수정</button>
                     <button class="delete-btn" onclick="deletePost(${post.id})">삭제</button>
@@ -258,7 +276,6 @@
         }
     }
 
-    // 5. (추가) 게시물 수정 함수
     async function updatePost(postId) {
         if (!jwtToken) {
             alert('먼저 로그인을 해주세요!');
@@ -267,7 +284,7 @@
 
         const newContent = prompt("새로운 내용을 입력하세요:");
         if (newContent === null || newContent.trim() === '') {
-            return; // 사용자가 취소했거나 아무것도 입력하지 않은 경우
+            return;
         }
 
         try {
@@ -281,19 +298,17 @@
             });
 
             if (!response.ok) {
-                // 서버에서 보낸 에러 메시지를 받아서 보여줌
                 const errorText = await response.text();
                 throw new Error(errorText || '게시물 수정에 실패했습니다. 작성자만 수정할 수 있습니다.');
             }
 
             alert('게시물이 수정되었습니다.');
-            getAllPosts(); // 목록 새로고침
+            getAllPosts();
         } catch (error) {
             alert(error.message);
         }
     }
 
-    // 6. (추가) 게시물 삭제 함수
     async function deletePost(postId) {
         if (!jwtToken) {
             alert('먼저 로그인을 해주세요!');
@@ -317,7 +332,36 @@
             }
 
             alert(resultMessage || '게시물이 삭제되었습니다.');
-            getAllPosts(); // 목록 새로고침
+            getAllPosts();
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    async function toggleLike(postId) {
+        if (!jwtToken) {
+            alert('먼저 로그인을 해주세요!');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/posts/${postId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + jwtToken
+                }
+            });
+
+            const resultText = await response.text();
+
+            if (!response.ok) {
+                throw new Error(resultText || '좋아요 처리 중 문제가 발생했습니다.');
+            }
+
+            alert(resultText || '좋아요 처리 성공!');
+
+            getAllPosts();
+
         } catch (error) {
             alert(error.message);
         }
