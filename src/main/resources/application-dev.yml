@@ -13,5 +13,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
 server.port: 8080
 
-jwt: # 임시 jwt 키 -> 나중에 aws parameter store로?
-  secret: c3ByaW5nLWJvb3Qtand0LXNlY3JldC1rZXktZm9yLWluc3RhZ3JhbS1jbG9uZS10ZXN0
+
+# 임시 jwt 키 -> 나중에 aws parameter store로?
+#jwt:
+ # secret: c3ByaW5nLWJvb3Qtand0LXNlY3JldC1rZXktZm9yLWluc3RhZ3JhbS1jbG9uZS10ZXN0
