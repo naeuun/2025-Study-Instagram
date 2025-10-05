@@ -39,3 +39,4 @@ out/
 ### 배포하면서 추가 ###
 _vol/
 instagram-key.pem
+.env.prod
