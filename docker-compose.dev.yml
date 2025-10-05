@@ -1,5 +1,16 @@
 # Docker Compose를 사용하여 여러 MySQL 컨테이너를 설정
 services:
+  app: # app 이하 코드를 도커 이미지 빌드 후 추가!
+    image: instagram-app:local
+    container_name: instagram-app-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - instagram-mysql
+    restart: unless-stopped
+
   instagram-mysql:     # 팀/프로젝트 이름을 접두사로 붙여 팀원이 여러 도커 띄워도 충돌이 안 나도록!
     image: mysql:8.0.43
     container_name: instagram-mysql-dev  # 프로젝트-서비스-환경 -> 협업 시 직관적임
