@@ -12,6 +12,8 @@ services:
 
   instagram-mysql:
     image: mysql:8.0.43
+    ports:
+      - 3307:3306
     container_name: instagram-mysql
     env_file:
       - .env.prod
